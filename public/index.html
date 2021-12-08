@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MCVE</title>
+
+    <!-- update the version number as needed -->
+    <script src="/__/firebase/8.6.1/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script src="/__/firebase/8.6.1/firebase-auth.js"></script>
+    <script src="/__/firebase/8.6.1/firebase-functions.js"></script>
+    <!-- 
+      initialize the SDK after all desired features are loaded, set useEmulator to false
+      to avoid connecting the SDK to running emulators.
+    -->
+    <script src="/__/firebase/init.js?useEmulator=false"></script>
+  </head>
+  <body>
+    <button class="signIn" type="button" onclick="signIn();">Sign In With Google</button>
+    <div class="app" style="display: none;">
+      <button type="button" onclick="simulate();">Create User with Provider UID</button>  
+      <button type="button" onclick="reset();">Reset</button>
+    </div>
+    <script>
+      function signIn() {
+        let provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider);
+      }
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          let pre = document.createElement('pre');
+          let {uid, displayName, photoURL, email, providerData} = user;
+          pre.innerHTML = `${JSON.stringify({uid, displayName, photoURL, email, providerData}, null, 2)}`;
+          document.querySelector('.signIn').replaceWith(pre);
+          document.querySelector('.app').style.display = 'block';
+        }
+      });
+      function simulate() {
+        firebase.functions().httpsCallable('simulate').call().then(done);
+      }
+      function reset() {
+        firebase.functions().httpsCallable('reset').call().then(done);
+      }
+      function done() {
+        location.reload();
+      }
+    </script>
+  </body>
+</html>
